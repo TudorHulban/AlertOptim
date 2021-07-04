@@ -9,7 +9,6 @@ import (
 
 func TestSimple(t *testing.T) {
 	a, errNew := NewSimple("source.yaml")
-	// a, errNew := NewSimple("sample.yaml")
 	require.Nil(t, errNew)
 
 	a.Spool(os.Stdout)

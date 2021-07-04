@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -15,10 +16,12 @@ type Alert struct {
 	RawAlert
 
 	Name        string
+	Description string
 	Type        string
-	WarningLev  int
-	CriticalLev int
+	WarningLev  float64
+	CriticalLev float64
 	Sustain     int
+	Action      string
 }
 
 type AlertInfo struct {
@@ -173,8 +176,8 @@ func extractAlert(r RawAlert) Alert {
 	var a Alert
 	raw := []string{}
 
-	for _, line := range r {
-		vals := strings.Split(line, ":")
+	for i := 0; i < len(r); i++ {
+		vals := strings.Split(r[i], ":")
 
 		switch strings.Trim(vals[0], " ") {
 		case "name":
@@ -189,10 +192,40 @@ func extractAlert(r RawAlert) Alert {
 				continue
 			}
 
+		case "description":
+			{
+				item := []string{}
+				posToken := strings.Index(r[i], "description")
+
+				for (startPos(r[i+1]) > posToken) || len(r[i+1]) == 1 {
+					item = append(item, r[i])
+					i++
+				}
+
+				item = append(item, r[i])
+				a.Description = strings.Join(item, "")
+				continue
+			}
+
+		case "query":
+			{
+				item := []string{}
+				posToken := strings.Index(r[i], "query")
+
+				for (startPos(r[i+1]) > posToken) || len(r[i+1]) == 1 {
+					item = append(item, r[i])
+					i++
+				}
+
+				item = append(item, r[i])
+				a.Action = strings.Join(item, "")
+				continue
+			}
+
 		case "warn":
 			{
 				var errWarn error
-				a.WarningLev, errWarn = strconv.Atoi(strings.Trim(vals[1], "  \n"))
+				a.WarningLev, errWarn = strconv.ParseFloat(strings.Trim(vals[1], "  \n"), 64)
 				if errWarn != nil {
 					log.Println(errWarn)
 				}
@@ -202,7 +235,7 @@ func extractAlert(r RawAlert) Alert {
 		case "critical":
 			{
 				var errCri error
-				a.CriticalLev, errCri = strconv.Atoi(strings.Trim(vals[1], "  \n"))
+				a.CriticalLev, errCri = strconv.ParseFloat(strings.Trim(vals[1], "  \n"), 64)
 				if errCri != nil {
 					log.Println(errCri)
 				}
@@ -225,7 +258,7 @@ func extractAlert(r RawAlert) Alert {
 			}
 		}
 
-		raw = append(raw, line)
+		raw = append(raw, r[i])
 	}
 
 	tabs := "    "
@@ -233,10 +266,12 @@ func extractAlert(r RawAlert) Alert {
 	alertPrime := []string{
 		tabs + "- alert:" + "\n",
 		tabs + "    name:" + a.Name,
+		a.Description,
 		tabs + "    type:" + " " + a.Type + "\n",
-		tabs + "    warn:" + " " + strconv.Itoa(a.WarningLev) + "\n",
-		tabs + "    critical:" + " " + strconv.Itoa(a.CriticalLev) + "\n",
+		tabs + "    warn:" + " " + fmt.Sprintf("%.2f", a.WarningLev) + "\n",
+		tabs + "    critical:" + " " + fmt.Sprintf("%.2f", a.CriticalLev) + "\n",
 		tabs + "    sustainPeriod:" + " " + strconv.Itoa(a.Sustain) + "\n",
+		a.Action,
 	}
 
 	a.RawAlert = append(a.RawAlert, alertPrime...)
@@ -244,4 +279,21 @@ func extractAlert(r RawAlert) Alert {
 	a.RawAlert = append(a.RawAlert, "\n")
 
 	return a
+}
+
+func startPos(s string) int {
+	if len(s) == 0 {
+		return -1
+	}
+
+	i := 0
+	for i < len(s)-1 {
+		if s[i:i+1] != " " {
+			break
+		}
+
+		i++
+	}
+
+	return i
 }
