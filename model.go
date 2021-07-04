@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -172,6 +171,7 @@ func extractAlerts(data []string) []RawAlert {
 	return res
 }
 
+// TODO: could refactor by placing logic in a generic node extractor.
 func extractAlert(r RawAlert) Alert {
 	var a Alert
 	raw := []string{}
@@ -268,8 +268,8 @@ func extractAlert(r RawAlert) Alert {
 		tabs + "    name:" + a.Name,
 		a.Description,
 		tabs + "    type:" + " " + a.Type + "\n",
-		tabs + "    warn:" + " " + fmt.Sprintf("%.2f", a.WarningLev) + "\n",
-		tabs + "    critical:" + " " + fmt.Sprintf("%.2f", a.CriticalLev) + "\n",
+		tabs + "    warn:" + " " + strconv.FormatFloat(a.WarningLev, 'f', -1, 64) + "\n",
+		tabs + "    critical:" + " " + strconv.FormatFloat(a.CriticalLev, 'f', -1, 64) + "\n",
 		tabs + "    sustainPeriod:" + " " + strconv.Itoa(a.Sustain) + "\n",
 		a.Action,
 	}
