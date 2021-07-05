@@ -175,85 +175,108 @@ func extractAlerts(data []string) []RawAlert {
 func extractAlert(r RawAlert) Alert {
 	var a Alert
 	raw := []string{}
+	var posTokens int
 
 	for i := 0; i < len(r); i++ {
 		vals := strings.Split(r[i], ":")
 
 		switch strings.Trim(vals[0], " ") {
+		case "- alert":
+			{
+				i++
+				posTokens = startPos(r[i]) // for i==1
+			}
+
 		case "name":
 			{
-				a.Name = strings.Title(vals[1])
+				if startPos(r[i]) == posTokens {
+					a.Name = strings.Title(vals[1])
+				}
+
 				continue
 			}
 
 		case "type":
 			{
-				a.Type = strings.Trim(vals[1], " \n")
+				if startPos(r[i]) == posTokens {
+					a.Type = strings.Trim(vals[1], " \n")
+				}
+
 				continue
 			}
 
 		case "description":
 			{
-				item := []string{}
-				posToken := strings.Index(r[i], "description")
+				if startPos(r[i]) == posTokens {
+					item := []string{}
+					posToken := strings.Index(r[i], "description")
 
-				for (startPos(r[i+1]) > posToken) || len(r[i+1]) == 1 {
+					for (startPos(r[i+1]) > posToken) || len(r[i+1]) == 1 {
+						item = append(item, r[i])
+						i++
+					}
+
 					item = append(item, r[i])
-					i++
+					a.Description = strings.Join(item, "")
 				}
 
-				item = append(item, r[i])
-				a.Description = strings.Join(item, "")
 				continue
 			}
 
 		case "query":
 			{
-				item := []string{}
-				posToken := strings.Index(r[i], "query")
+				if startPos(r[i]) == posTokens {
+					item := []string{}
+					posToken := strings.Index(r[i], "query")
 
-				for (startPos(r[i+1]) > posToken) || len(r[i+1]) == 1 {
+					for (startPos(r[i+1]) > posToken) || len(r[i+1]) == 1 {
+						item = append(item, r[i])
+						i++
+					}
+
 					item = append(item, r[i])
-					i++
+					a.Action = strings.Join(item, "")
 				}
 
-				item = append(item, r[i])
-				a.Action = strings.Join(item, "")
 				continue
 			}
 
 		case "warn":
 			{
-				var errWarn error
-				a.WarningLev, errWarn = strconv.ParseFloat(strings.Trim(vals[1], "  \n"), 64)
-				if errWarn != nil {
-					log.Println(errWarn)
+				if startPos(r[i]) == posTokens {
+					var errWarn error
+					a.WarningLev, errWarn = strconv.ParseFloat(strings.Trim(vals[1], "  \n"), 64)
+					if errWarn != nil {
+						log.Println(errWarn)
+					}
 				}
+
 				continue
 			}
 
 		case "critical":
 			{
-				var errCri error
-				a.CriticalLev, errCri = strconv.ParseFloat(strings.Trim(vals[1], "  \n"), 64)
-				if errCri != nil {
-					log.Println(errCri)
+				if startPos(r[i]) == posTokens {
+					var errCri error
+					a.CriticalLev, errCri = strconv.ParseFloat(strings.Trim(vals[1], "  \n"), 64)
+					if errCri != nil {
+						log.Println(errCri)
+					}
 				}
+
 				continue
 			}
 
 		case "sustainPeriod":
 			{
-				var errSus error
-				a.Sustain, errSus = strconv.Atoi(strings.Trim(vals[1], "  \n"))
-				if errSus != nil {
-					log.Println(errSus)
+				if startPos(r[i]) == posTokens {
+					var errSus error
+					a.Sustain, errSus = strconv.Atoi(strings.Trim(vals[1], "  \n"))
+					if errSus != nil {
+						log.Println(errSus)
+					}
 				}
-				continue
-			}
 
-		case "- alert":
-			{
 				continue
 			}
 		}
@@ -261,7 +284,7 @@ func extractAlert(r RawAlert) Alert {
 		raw = append(raw, r[i])
 	}
 
-	tabs := "    "
+	tabs := "  "
 
 	alertPrime := []string{
 		tabs + "- alert:" + "\n",
