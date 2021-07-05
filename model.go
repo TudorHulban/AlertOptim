@@ -191,18 +191,16 @@ func extractAlert(r RawAlert) Alert {
 			{
 				if startPos(r[i]) == posTokens {
 					a.Name = strings.Title(vals[1])
+					continue
 				}
-
-				continue
 			}
 
 		case "type":
 			{
 				if startPos(r[i]) == posTokens {
 					a.Type = strings.Trim(vals[1], " \n")
+					continue
 				}
-
-				continue
 			}
 
 		case "description":
@@ -218,9 +216,9 @@ func extractAlert(r RawAlert) Alert {
 
 					item = append(item, r[i])
 					a.Description = strings.Join(item, "")
-				}
 
-				continue
+					continue
+				}
 			}
 
 		case "query":
@@ -236,9 +234,9 @@ func extractAlert(r RawAlert) Alert {
 
 					item = append(item, r[i])
 					a.Action = strings.Join(item, "")
-				}
 
-				continue
+					continue
+				}
 			}
 
 		case "warn":
@@ -249,9 +247,9 @@ func extractAlert(r RawAlert) Alert {
 					if errWarn != nil {
 						log.Println(errWarn)
 					}
-				}
 
-				continue
+					continue
+				}
 			}
 
 		case "critical":
@@ -262,9 +260,9 @@ func extractAlert(r RawAlert) Alert {
 					if errCri != nil {
 						log.Println(errCri)
 					}
-				}
 
-				continue
+					continue
+				}
 			}
 
 		case "sustainPeriod":
@@ -275,9 +273,9 @@ func extractAlert(r RawAlert) Alert {
 					if errSus != nil {
 						log.Println(errSus)
 					}
-				}
 
-				continue
+					continue
+				}
 			}
 		}
 

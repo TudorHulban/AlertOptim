@@ -27,7 +27,14 @@ func main() {
 		defer f.Close()
 
 		alertInfo.Spool(f)
+
 		fmt.Println("File Optimized.")
+		fmt.Println("ZUpper: ", len(alertInfo.AlertsZUpper))
+		fmt.Println("ZLower: ", len(alertInfo.AlertsZLower))
+		fmt.Println("LUpper: ", len(alertInfo.AlertsLUpper))
+		fmt.Println("LLower: ", len(alertInfo.AlertsLLower))
+		fmt.Println("Other:  ", len(alertInfo.AlertsOther))
+
 		os.Exit(0)
 	}
 
