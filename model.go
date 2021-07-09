@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"io"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -92,27 +90,6 @@ func mapAlerts(alerts []RawAlert) AlertInfo {
 	}
 
 	return res
-}
-
-func readFile(path string) ([]string, error) {
-	f, errOpen := os.Open(path)
-	if errOpen != nil {
-		return nil, errOpen
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-
-	var res []string
-
-	for scanner.Scan() {
-		res = append(res, scanner.Text()+"\n")
-	}
-	if errScan := scanner.Err(); errScan != nil {
-		return nil, errScan
-	}
-
-	return res, nil
 }
 
 func isolateHeader(data []string) ([]string, int) {
