@@ -278,20 +278,3 @@ func extractAlert(r RawAlert) Alert {
 
 	return a
 }
-
-func startPos(s string) int {
-	if len(s) == 0 {
-		return -1
-	}
-
-	i := 0
-	for i < len(s)-1 {
-		if s[i:i+1] != " " {
-			break
-		}
-
-		i++
-	}
-
-	return i
-}

@@ -47,3 +47,20 @@ func chopLastRow(path, verify string) error {
 
 	return ioutil.WriteFile(path, []byte(strings.Join(contents[:len(contents)-1], "")), 0644)
 }
+
+func startPos(s string) int {
+	if len(s) == 0 {
+		return -1
+	}
+
+	i := 0
+	for i < len(s)-1 {
+		if s[i:i+1] != " " {
+			break
+		}
+
+		i++
+	}
+
+	return i
+}
