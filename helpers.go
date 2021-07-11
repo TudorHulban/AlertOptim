@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -75,7 +76,7 @@ func sameContent(filePath1, filePath2 string, w io.Writer) error {
 		return errRead1
 	}
 
-	c1, errPar1 := parseContent(content1)
+	c1, errPar1 := parseContentToLower(content1)
 	if errPar1 != nil {
 		return errPar1
 	}
@@ -85,7 +86,7 @@ func sameContent(filePath1, filePath2 string, w io.Writer) error {
 		return errRead2
 	}
 
-	c2, errPar2 := parseContent(content2)
+	c2, errPar2 := parseContentToLower(content2)
 	if errPar2 != nil {
 		return errPar2
 	}
@@ -101,7 +102,7 @@ func sameContent(filePath1, filePath2 string, w io.Writer) error {
 }
 
 func diff(d1, d2 map[string]int, w io.Writer) {
-	w.Write([]byte("\nAnalysis:\n"))
+	var diffs []string
 
 	for k := range d1 {
 		if k == " " || k == "\n" {
@@ -109,17 +110,26 @@ func diff(d1, d2 map[string]int, w io.Writer) {
 		}
 
 		if _, exists := d2[k]; !exists {
-			w.Write([]byte("missing: " + k))
+			if _, existsTitle := d2[strings.Title(k)]; existsTitle {
+				continue
+			}
+
+			diffs = append(diffs, "missing: "+k)
 			continue
 		}
 
 		if d1[k] != d2[k] {
-			w.Write([]byte(strings.ReplaceAll(k, "\n", "") + " -- " + strconv.Itoa(d1[k]) + " versus " + strconv.Itoa(d2[k]) + "\n"))
+			diffs = append(diffs, strings.ReplaceAll(k, "\n", "")+" -- "+strconv.Itoa(d1[k])+" versus "+strconv.Itoa(d2[k])+"\n")
 		}
 	}
+
+	sort.Strings(diffs)
+
+	w.Write([]byte("\nAnalysis:\n"))
+	w.Write([]byte(strings.Join(diffs, "")))
 }
 
-func parseContent(c []string) (map[string]int, error) {
+func parseContentToLower(c []string) (map[string]int, error) {
 	if len(c) == 0 {
 		return nil, errors.New("empty content")
 	}
@@ -127,12 +137,14 @@ func parseContent(c []string) (map[string]int, error) {
 	res := make(map[string]int)
 
 	for _, row := range c {
-		if _, exists := res[row]; exists {
-			res[row]++
+		buf := strings.ToLower(row)
+
+		if _, exists := res[buf]; exists {
+			res[buf]++
 			continue
 		}
 
-		res[row] = 1
+		res[buf] = 1
 	}
 
 	return res, nil
