@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -67,7 +69,7 @@ func startPos(s string) int {
 	return i
 }
 
-func sameContent(filePath1, filePath2 string) error {
+func sameContent(filePath1, filePath2 string, w io.Writer) error {
 	content1, errRead1 := readFile(filePath1)
 	if errRead1 != nil {
 		return errRead1
@@ -88,11 +90,33 @@ func sameContent(filePath1, filePath2 string) error {
 		return errPar2
 	}
 
-	if !reflect.DeepEqual(c1, c2) {
-		return errors.New("file contents do NOT match")
+	if reflect.DeepEqual(c1, c2) {
+		return nil
 	}
 
-	return nil
+	diff(c1, c2, w)
+	diff(c2, c1, w)
+
+	return errors.New("file contents do NOT match")
+}
+
+func diff(d1, d2 map[string]int, w io.Writer) {
+	w.Write([]byte("\nAnalysis:\n"))
+
+	for k := range d1 {
+		if k == " " || k == "\n" {
+			continue
+		}
+
+		if _, exists := d2[k]; !exists {
+			w.Write([]byte("missing: " + k))
+			continue
+		}
+
+		if d1[k] != d2[k] {
+			w.Write([]byte(strings.ReplaceAll(k, "\n", "") + " -- " + strconv.Itoa(d1[k]) + " versus " + strconv.Itoa(d2[k]) + "\n"))
+		}
+	}
 }
 
 func parseContent(c []string) (map[string]int, error) {

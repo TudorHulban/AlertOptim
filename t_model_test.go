@@ -12,7 +12,7 @@ const (
 	target = "target.yaml"
 )
 
-func TestSimple(t *testing.T) {
+func TestLogic(t *testing.T) {
 	a, errNew := NewOptim(source)
 	require.Nil(t, errNew)
 
@@ -22,5 +22,5 @@ func TestSimple(t *testing.T) {
 
 	a.Spool(f)
 
-	require.Nil(t, sameContent(source, target))
+	require.Nil(t, sameContent(source, target, os.Stdout))
 }

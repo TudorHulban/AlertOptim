@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -25,7 +26,7 @@ func TestPos(t *testing.T) {
 }
 
 func TestSame(t *testing.T) {
-	require.Nil(t, sameContent(toChop, toChop))
-	require.Error(t, sameContent(toChop, empty))
-	require.Error(t, sameContent(line, lineWSpace))
+	require.Nil(t, sameContent(toChop, toChop, os.Stdin))
+	require.Error(t, sameContent(toChop, empty, os.Stdin))
+	require.Error(t, sameContent(line, lineWSpace, os.Stdin))
 }

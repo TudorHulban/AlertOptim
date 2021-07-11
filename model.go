@@ -161,8 +161,8 @@ func extractAlert(r RawAlert) Alert {
 		switch strings.Trim(vals[0], " ") {
 		case "- alert":
 			{
-				i++
-				posTokens = startPos(r[i]) // for i==1
+				posTokens = startPos(r[i+1]) // for i==1
+				continue
 			}
 
 		case "name":
