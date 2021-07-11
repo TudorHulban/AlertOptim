@@ -30,7 +30,8 @@ type AlertInfo struct {
 	AlertsOther  []Alert
 }
 
-func NewSimple(source string) (*AlertInfo, error) {
+// NewOptim Constructor would create an optimised version of passed alert.
+func NewOptim(source string) (*AlertInfo, error) {
 	data, errRead := readFile(source)
 	if errRead != nil {
 		return nil, errRead

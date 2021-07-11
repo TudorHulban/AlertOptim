@@ -15,5 +15,7 @@
 # vendor/
 go.sum
 source.yaml
+target.yaml
 alertprocessor
 xxx.1
+

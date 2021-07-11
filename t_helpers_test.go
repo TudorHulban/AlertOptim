@@ -6,13 +6,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const toChop = "xxx.1"
-const toChopEmpty = "xxx.2"
+const (
+	toChop     = "xxx.1"
+	empty      = "xxx.2"
+	line       = "xxx.3"
+	lineWSpace = "xxx.4"
+)
 
-func TestChop(t *testing.T) {
-	require.Error(t, chopLastRow(toChop, ""))
-	require.Nil(t, chopLastRow(toChop, "2\n"))
-}
+// func TestChop(t *testing.T) {
+// 	require.Error(t, chopLastRow(toChop, ""))
+// 	require.Nil(t, chopLastRow(toChop, "2\n"))
+// }
 
 func TestPos(t *testing.T) {
 	require.Equal(t, -1, startPos(""))
@@ -22,5 +26,6 @@ func TestPos(t *testing.T) {
 
 func TestSame(t *testing.T) {
 	require.Nil(t, sameContent(toChop, toChop))
-	require.Error(t, sameContent(toChop, toChopEmpty))
+	require.Error(t, sameContent(toChop, empty))
+	require.Error(t, sameContent(line, lineWSpace))
 }
