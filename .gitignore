@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+*.debug
 
 # Test binary, built with `go test -c`
 *.test
@@ -18,4 +19,6 @@ source.yaml
 target.yaml
 alertprocessor
 xxx.1
-
+xxx.2
+xxx.3
+xxx.4
