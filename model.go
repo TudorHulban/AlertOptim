@@ -267,19 +267,17 @@ func extractAlert(r RawAlert) Alert {
 		tabs + "    type:" + " " + a.Type + "\n",
 		tabs + "    warn:" + " " + strconv.FormatFloat(a.WarningLev, 'f', -1, 64) + "\n",
 		tabs + "    critical:" + " " + strconv.FormatFloat(a.CriticalLev, 'f', -1, 64) + "\n",
-		tabs + "    sustainPeriod:" + " " + strconv.Itoa(a.Sustain) + "\n",
-		a.Action,
 	}
 
-	for _, token := range alertPrime {
-		split := strings.Split(token, ":")
-		if len(strings.Trim(split[1], " \n")) != 0 {
-			a.RawAlert = append(a.RawAlert, token)
-		}
+	a.RawAlert = append(a.RawAlert, alertPrime...)
 
-		if strings.Contains(split[0], "- alert") {
-			a.RawAlert = append(a.RawAlert, token)
-		}
+	// TODO: bug!!!
+	if a.Sustain != 0 {
+		a.RawAlert = append(a.RawAlert, tabs+"    sustainPeriod:"+" "+strconv.Itoa(a.Sustain)+"\n")
+	}
+
+	if len(a.Action) != 0 {
+		a.RawAlert = append(a.RawAlert, a.Action)
 	}
 
 	a.RawAlert = append(a.RawAlert, raw...)

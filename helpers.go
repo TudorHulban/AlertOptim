@@ -110,10 +110,6 @@ func diff(d1, d2 map[string]int, w io.Writer) {
 		}
 
 		if _, exists := d2[k]; !exists {
-			if _, existsTitle := d2[strings.Title(k)]; existsTitle {
-				continue
-			}
-
 			diffs = append(diffs, "missing: "+k)
 			continue
 		}
