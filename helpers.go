@@ -95,7 +95,12 @@ func sameContent(filePath1, filePath2 string, w io.Writer) error {
 		return nil
 	}
 
+	msg1 := fmt.Sprintf("\nAnalysis - Diffs in file: '%s' versus file: '%s':\n", filePath1, filePath2)
+	w.Write([]byte(msg1))
 	diff(c1, c2, w)
+
+	msg2 := fmt.Sprintf("\nAnalysis - Diffs in file: '%s' versus file: '%s':\n", filePath2, filePath1)
+	w.Write([]byte(msg2))
 	diff(c2, c1, w)
 
 	return errors.New("file contents do NOT match")
@@ -119,9 +124,12 @@ func diff(d1, d2 map[string]int, w io.Writer) {
 		}
 	}
 
-	sort.Strings(diffs)
+	if len(diffs) == 0 {
+		w.Write([]byte("no differences in content.\n"))
+		return
+	}
 
-	w.Write([]byte("\nAnalysis:\n"))
+	sort.Strings(diffs)
 	w.Write([]byte(strings.Join(diffs, "")))
 }
 

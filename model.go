@@ -17,7 +17,7 @@ type Alert struct {
 	Type        string
 	WarningLev  float64
 	CriticalLev float64
-	Sustain     int
+	Sustain     string
 	Action      string
 }
 
@@ -244,12 +244,7 @@ func extractAlert(r RawAlert) Alert {
 		case "sustainPeriod":
 			{
 				if startPos(r[i]) == posToken {
-					var errSus error
-					a.Sustain, errSus = strconv.Atoi(strings.Trim(vals[1], "  \n"))
-					if errSus != nil {
-						log.Println(errSus)
-					}
-
+					a.Sustain = vals[1]
 					continue
 				}
 			}
@@ -264,16 +259,19 @@ func extractAlert(r RawAlert) Alert {
 		tabs + "- alert:" + "\n",
 		tabs + "    name:" + a.Name,
 		a.Description,
-		tabs + "    type:" + " " + a.Type + "\n",
-		tabs + "    warn:" + " " + strconv.FormatFloat(a.WarningLev, 'f', -1, 64) + "\n",
-		tabs + "    critical:" + " " + strconv.FormatFloat(a.CriticalLev, 'f', -1, 64) + "\n",
 	}
 
 	a.RawAlert = append(a.RawAlert, alertPrime...)
 
-	// TODO: bug!!!
-	if a.Sustain != 0 {
-		a.RawAlert = append(a.RawAlert, tabs+"    sustainPeriod:"+" "+strconv.Itoa(a.Sustain)+"\n")
+	if len(a.Type) != 0 {
+		a.RawAlert = append(a.RawAlert, tabs+"    type:"+" "+a.Type+"\n")
+	}
+
+	a.RawAlert = append(a.RawAlert, tabs+"    warn:"+" "+strconv.FormatFloat(a.WarningLev, 'f', -1, 64)+"\n")
+	a.RawAlert = append(a.RawAlert, tabs+"    critical:"+" "+strconv.FormatFloat(a.CriticalLev, 'f', -1, 64)+"\n")
+
+	if len(a.Sustain) != 0 {
+		a.RawAlert = append(a.RawAlert, tabs+"    sustainPeriod:"+a.Sustain)
 	}
 
 	if len(a.Action) != 0 {
