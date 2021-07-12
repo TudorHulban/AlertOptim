@@ -13,6 +13,7 @@ type Alert struct {
 	RawAlert
 
 	Name        string
+	Author      string
 	Description string
 	Type        string
 	WarningLev  float64
@@ -177,6 +178,14 @@ func extractAlert(r RawAlert) Alert {
 					}
 				}
 
+			case "author":
+				{
+					if startPos(r[i]) == posToken {
+						a.Author = strings.Title(tokenVal)
+						continue
+					}
+				}
+
 			case "type":
 				{
 					if startPos(r[i]) == posToken {
@@ -263,10 +272,17 @@ func extractAlert(r RawAlert) Alert {
 	alertPrime := []string{
 		tabs + "- alert:" + "\n",
 		tabs + "    name:" + a.Name,
-		a.Description,
 	}
 
 	a.RawAlert = append(a.RawAlert, alertPrime...)
+
+	if len(a.Author) != 0 {
+		a.RawAlert = append(a.RawAlert, tabs+"    author:"+a.Author)
+	}
+
+	if len(a.Description) != 0 {
+		a.RawAlert = append(a.RawAlert, a.Description)
+	}
 
 	if len(a.Type) != 0 {
 		a.RawAlert = append(a.RawAlert, tabs+"    type:"+" "+a.Type+"\n")
