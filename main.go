@@ -40,8 +40,8 @@ func main() {
 
 	// TODO: assess verification of path existence
 	if len(args) == 3 {
-		sameContent(args[1], args[2])
-		sameContent(args[2], args[1])
+		sameContent(args[1], args[2], os.Stdout)
+		sameContent(args[2], args[1], os.Stdout)
 
 		os.Exit(0)
 	}
