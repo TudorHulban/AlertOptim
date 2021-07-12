@@ -35,13 +35,14 @@ func main() {
 		fmt.Println("LLower: ", len(alertInfo.AlertsLLower))
 		fmt.Println("Other:  ", len(alertInfo.AlertsOther))
 
+		sameContent(args[1], newFilePath, os.Stdout)
+
 		os.Exit(0)
 	}
 
 	// TODO: assess verification of path existence
 	if len(args) == 3 {
 		sameContent(args[1], args[2], os.Stdout)
-		sameContent(args[2], args[1], os.Stdout)
 
 		os.Exit(0)
 	}
