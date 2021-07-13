@@ -48,18 +48,28 @@ func NewOptim(source string) (*AlertInfo, error) {
 }
 
 func (a *AlertInfo) Spool(w io.Writer) {
-	s := func(data []Alert, w io.Writer) {
+	spool := func(data []Alert, w io.Writer) {
 		for _, a := range data {
 			w.Write([]byte(strings.Join(a.RawAlert, "")))
 		}
 	}
 
+	a.sortPerName()
+
 	w.Write([]byte(strings.Join(a.Header, "")))
-	s(a.AlertsZUpper, w)
-	s(a.AlertsZLower, w)
-	s(a.AlertsLUpper, w)
-	s(a.AlertsLLower, w)
-	s(a.AlertsOther, w)
+	spool(a.AlertsZUpper, w)
+	spool(a.AlertsZLower, w)
+	spool(a.AlertsLUpper, w)
+	spool(a.AlertsLLower, w)
+	spool(a.AlertsOther, w)
+}
+
+func (a *AlertInfo) sortPerName() {
+	a.AlertsZUpper = sortAlerts(a.AlertsZUpper)
+	a.AlertsZLower = sortAlerts(a.AlertsZLower)
+	a.AlertsLUpper = sortAlerts(a.AlertsLUpper)
+	a.AlertsLLower = sortAlerts(a.AlertsLLower)
+	a.AlertsOther = sortAlerts(a.AlertsOther)
 }
 
 func mapAlerts(alerts []RawAlert) AlertInfo {
@@ -176,7 +186,16 @@ func extractAlert(r RawAlert) Alert {
 			case "name":
 				{
 					if startPos(r[i]) == posToken {
-						a.Name = tokenVal
+						item := []string{}
+
+						for (startPos(r[i+1]) > posToken) || len(r[i+1]) == 1 {
+							item = append(item, r[i])
+							i++
+						}
+
+						item = append(item, r[i])
+						a.Name = strings.Join(item, "")
+
 						continue
 					}
 				}
@@ -266,7 +285,7 @@ func extractAlert(r RawAlert) Alert {
 
 	alertPrime := []string{
 		tabs + "- alert:" + "\n",
-		tabs + "    name:" + a.Name,
+		a.Name,
 	}
 
 	a.RawAlert = append(a.RawAlert, alertPrime...)
