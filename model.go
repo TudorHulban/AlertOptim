@@ -157,7 +157,7 @@ func extractAlert(r RawAlert) Alert {
 
 	raw := []string{}
 
-	for i := 0; i < len(r); i++ {
+	for i := 1; i < len(r); i++ {
 		pos := strings.Index(r[i], ":")
 
 		if pos != -1 {
@@ -165,23 +165,18 @@ func extractAlert(r RawAlert) Alert {
 			tokenVal := r[i][pos+1:]
 
 			switch token {
-			case "- alert":
+			case "author":
 				{
-					continue
+					if startPos(r[i]) == posToken {
+						a.Author = tokenVal
+						continue
+					}
 				}
 
 			case "name":
 				{
 					if startPos(r[i]) == posToken {
-						a.Name = strings.Title(tokenVal)
-						continue
-					}
-				}
-
-			case "author":
-				{
-					if startPos(r[i]) == posToken {
-						a.Author = strings.Title(tokenVal)
+						a.Name = tokenVal
 						continue
 					}
 				}
