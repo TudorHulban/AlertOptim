@@ -65,11 +65,11 @@ func (a *AlertInfo) Spool(w io.Writer) {
 }
 
 func (a *AlertInfo) sortPerName() {
-	a.AlertsZUpper = sortAlerts(a.AlertsZUpper)
-	a.AlertsZLower = sortAlerts(a.AlertsZLower)
-	a.AlertsLUpper = sortAlerts(a.AlertsLUpper)
-	a.AlertsLLower = sortAlerts(a.AlertsLLower)
-	a.AlertsOther = sortAlerts(a.AlertsOther)
+	sortAlerts(a.AlertsZUpper)
+	sortAlerts(a.AlertsZLower)
+	sortAlerts(a.AlertsLUpper)
+	sortAlerts(a.AlertsLLower)
+	sortAlerts(a.AlertsOther)
 }
 
 func mapAlerts(alerts []RawAlert) AlertInfo {

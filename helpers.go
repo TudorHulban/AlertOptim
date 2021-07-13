@@ -154,10 +154,8 @@ func parseContentToLower(c []string) (map[string]int, error) {
 	return res, nil
 }
 
-func sortAlerts(data []Alert) []Alert {
+func sortAlerts(data []Alert) {
 	sort.Slice(data, func(i, j int) bool {
 		return data[i].Name < data[j].Name
 	})
-
-	return data
 }
