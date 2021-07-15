@@ -29,6 +29,7 @@ type AlertInfo struct {
 	AlertsLUpper []Alert
 	AlertsLLower []Alert
 	AlertsOther  []Alert
+	Footer       []string
 }
 
 // NewOptim Constructor would create an optimised version of passed alert.
@@ -38,11 +39,12 @@ func NewOptim(source string) (*AlertInfo, error) {
 		return nil, errRead
 	}
 
-	header, posAlerts := isolateHeader(data)
-	alertData := isolateAlertData(data, posAlerts)
+	header, footer, posAlertStart, posAlertEnd := isolate(data)
+	alertData := isolateAlertData(data, posAlertStart, posAlertEnd)
 
 	res := mapAlerts(extractAlerts(alertData))
 	res.Header = header
+	res.Footer = footer
 
 	return &res, nil
 }
@@ -104,26 +106,54 @@ func mapAlerts(alerts []RawAlert) AlertInfo {
 	return res
 }
 
-func isolateHeader(data []string) ([]string, int) {
-	var res []string
-	var posAlertInfo int
+// isolate returns header, footer and the alert start and end lines
+func isolate(data []string) ([]string, []string, int, int) {
+	var (
+		resHeader                    []string
+		resFooter                    []string
+		alertInfoStart, alertInfoEnd int
+	)
 
-	for i, line := range data {
-		res = append(res, line)
+	// TODO: input validation
+
+	// extract header
+	i := 0
+	for _, line := range data {
+		resHeader = append(resHeader, line)
 
 		if strings.Contains(line, "alerts:") {
-			posAlertInfo = i
+			alertInfoStart = i
 			break
 		}
+
+		i++
 	}
 
-	return res, posAlertInfo
+	// extract footer
+	j := i
+	for _, line := range data {
+		if strings.Contains(line, "groups:") {
+			alertInfoEnd = j - 1
+			break
+		}
+
+		j++
+	}
+
+	k := j
+	for _, line := range data {
+		resFooter = append(resFooter, line)
+
+		k++
+	}
+
+	return resHeader, resFooter, alertInfoStart, alertInfoEnd
 }
 
-func isolateAlertData(data []string, posAlert int) []string {
+func isolateAlertData(data []string, posAlertStart, posAlertEnd int) []string {
 	var res []string
 
-	for i := posAlert + 1; i < len(data); i++ {
+	for i := posAlertStart + 1; i < posAlertEnd; i++ {
 		res = append(res, data[i])
 	}
 
