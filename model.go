@@ -64,6 +64,7 @@ func (a *AlertInfo) Spool(w io.Writer) {
 	spool(a.AlertsLUpper, w)
 	spool(a.AlertsLLower, w)
 	spool(a.AlertsOther, w)
+	w.Write([]byte(strings.Join(a.Footer, "")))
 }
 
 func (a *AlertInfo) sortPerName() {
@@ -123,6 +124,7 @@ func isolate(data []string) ([]string, []string, int, int) {
 
 		if strings.Contains(line, "alerts:") {
 			alertInfoStart = i
+			log.Println("alertInfoStart: ", alertInfoStart)
 			break
 		}
 
@@ -131,20 +133,20 @@ func isolate(data []string) ([]string, []string, int, int) {
 
 	// extract footer
 	j := i
-	for _, line := range data {
-		if strings.Contains(line, "groups:") {
-			alertInfoEnd = j - 1
+	for j < len(data) {
+		if strings.Contains(data[j], "group:") {
+			alertInfoEnd = j
+			log.Println("alertInfoEnd: ", alertInfoEnd)
 			break
 		}
 
 		j++
 	}
 
-	k := j
-	for _, line := range data {
-		resFooter = append(resFooter, line)
+	for j < len(data) {
+		resFooter = append(resFooter, data[j])
 
-		k++
+		j++
 	}
 
 	return resHeader, resFooter, alertInfoStart, alertInfoEnd
