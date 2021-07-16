@@ -124,6 +124,7 @@ func isolate(data []string) ([]string, []string, int, int, string) {
 		resHeader                    []string
 		resFooter                    []string
 		alertInfoStart, alertInfoEnd int
+		posToken                     int
 	)
 
 	// TODO: input validation
@@ -136,6 +137,8 @@ func isolate(data []string) ([]string, []string, int, int, string) {
 		if strings.Contains(line, "alerts:") {
 			alertInfoStart = i
 			log.Println("alertInfoStart: ", alertInfoStart)
+
+			posToken = startPos(line)
 			break
 		}
 
@@ -145,7 +148,7 @@ func isolate(data []string) ([]string, []string, int, int, string) {
 	// isolate footer
 	j := i
 	for j < len(data) {
-		if strings.Contains(data[j], "group:") {
+		if strings.Contains(data[j], "group:") && (startPos(data[j]) == posToken) {
 			alertInfoEnd = j
 			log.Println("alertInfoEnd: ", alertInfoEnd)
 			break
