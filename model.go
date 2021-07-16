@@ -71,10 +71,10 @@ func (a *AlertInfo) Spool(w io.Writer) {
 }
 
 func (a *AlertInfo) SpoolAlertsInfo(msg string, alerts []Alert, w io.Writer) {
-	w.Write([]byte(a.Name + ": " + msg + "\n"))
+	w.Write([]byte("\n" + a.Name + ": " + msg + "\n"))
 
 	for _, alert := range alerts {
-		w.Write([]byte(fmt.Sprintf("name: %s, warning: %v, critical: %v", alert.Name, alert.WarningLev, alert.CriticalLev)))
+		w.Write([]byte(fmt.Sprintf("%s, warning: %v, critical: %v\n", strings.Trim(alert.Name, " \n"), alert.WarningLev, alert.CriticalLev)))
 	}
 }
 
@@ -162,6 +162,7 @@ func isolate(data []string) ([]string, []string, int, int, string) {
 	// extract name
 	pos := strings.Index(data[j+1], ":")
 	name := data[j+1][pos+1:]
+	name = strings.Trim(name, " $\n")
 
 	// extract footer
 	for j < len(data) {
