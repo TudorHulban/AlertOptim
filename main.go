@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func main() {
@@ -17,7 +16,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		newFilePath := filepath.Dir(args[1]) + "/" + strings.Split(filepath.Base(args[1]), ".")[0] + "_optim" + filepath.Ext(args[1])
+		// newFilePath := filepath.Dir(args[1]) + "/" + strings.Split(filepath.Base(args[1]), ".")[0] + "_optim" + filepath.Ext(args[1])
+		newFilePath := filepath.Dir(args[1]) + "/" + alertInfo.Name + "-group_optim" + filepath.Ext(args[1])
 
 		f, errFile := os.Create(newFilePath)
 		if errFile != nil {
@@ -36,6 +36,14 @@ func main() {
 		fmt.Println("Other:  ", len(alertInfo.AlertsOther))
 
 		sameContent(args[1], newFilePath, os.Stdout)
+
+		if len(alertInfo.AlertsZLower) > 0 {
+			alertInfo.SpoolAlertsInfo("Lower ZONE", alertInfo.AlertsZLower, os.Stdout)
+		}
+
+		if len(alertInfo.AlertsLLower) > 0 {
+			alertInfo.SpoolAlertsInfo("Lower LEGACY", alertInfo.AlertsLLower, os.Stdout)
+		}
 
 		os.Exit(0)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"strconv"
@@ -30,6 +31,7 @@ type AlertInfo struct {
 	AlertsLLower []Alert
 	AlertsOther  []Alert
 	Footer       []string
+	Name         string
 }
 
 // NewOptim Constructor would create an optimised version of passed alert.
@@ -39,12 +41,13 @@ func NewOptim(source string) (*AlertInfo, error) {
 		return nil, errRead
 	}
 
-	header, footer, posAlertStart, posAlertEnd := isolate(data)
+	header, footer, posAlertStart, posAlertEnd, name := isolate(data)
 	alertData := isolateAlertData(data, posAlertStart, posAlertEnd)
 
 	res := mapAlerts(extractAlerts(alertData))
 	res.Header = header
 	res.Footer = footer
+	res.Name = name
 
 	return &res, nil
 }
@@ -65,6 +68,14 @@ func (a *AlertInfo) Spool(w io.Writer) {
 	spool(a.AlertsLLower, w)
 	spool(a.AlertsOther, w)
 	w.Write([]byte(strings.Join(a.Footer, "")))
+}
+
+func (a *AlertInfo) SpoolAlertsInfo(msg string, alerts []Alert, w io.Writer) {
+	w.Write([]byte(a.Name + ": " + msg + "\n"))
+
+	for _, alert := range alerts {
+		w.Write([]byte(fmt.Sprintf("name: %s, warning: %v, critical: %v", alert.Name, alert.WarningLev, alert.CriticalLev)))
+	}
 }
 
 func (a *AlertInfo) sortPerName() {
@@ -108,7 +119,7 @@ func mapAlerts(alerts []RawAlert) AlertInfo {
 }
 
 // isolate returns header, footer and the alert start and end lines
-func isolate(data []string) ([]string, []string, int, int) {
+func isolate(data []string) ([]string, []string, int, int, string) {
 	var (
 		resHeader                    []string
 		resFooter                    []string
@@ -131,7 +142,7 @@ func isolate(data []string) ([]string, []string, int, int) {
 		i++
 	}
 
-	// extract footer
+	// isolate footer
 	j := i
 	for j < len(data) {
 		if strings.Contains(data[j], "group:") {
@@ -143,13 +154,23 @@ func isolate(data []string) ([]string, []string, int, int) {
 		j++
 	}
 
+	// check group existance
+	if alertInfoEnd == 0 {
+		return resHeader, resFooter, alertInfoStart, len(data), ""
+	}
+
+	// extract name
+	pos := strings.Index(data[j+1], ":")
+	name := data[j+1][pos+1:]
+
+	// extract footer
 	for j < len(data) {
 		resFooter = append(resFooter, data[j])
 
 		j++
 	}
 
-	return resHeader, resFooter, alertInfoStart, alertInfoEnd
+	return resHeader, resFooter, alertInfoStart, alertInfoEnd, name
 }
 
 func isolateAlertData(data []string, posAlertStart, posAlertEnd int) []string {
